@@ -120,7 +120,7 @@ public abstract class DownloadOption(string description, bool isAudio) : IDownlo
     }
 
     // If file ext could not be resolved, we cannot make pre-download checks -> default to overwriting
-    // TODO OverwriteMode.Increment currently not working for playlists.
+    // TODO OverwriteMode.Increment currently not working for playlists. Fix Model
     if ((Settings.Default.OverwriteMode != (Model.OverwriteMode)OverwriteMode.Overwrite) && (ext != null))
     {
       var restricted = ydl.RestrictFilenames;
