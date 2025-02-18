@@ -1,16 +1,15 @@
 ﻿using System;
-using Vividl.Model;
+using Vividl.Models;
 
-namespace Vividl.Services
+namespace Vividl.Services;
+
+/// <summary>
+/// Provides methods related to application theming.
+/// </summary>
+public interface IThemeResolver
 {
     /// <summary>
-    /// Provides methods related to application theming.
+    /// Applies the given color theme to the UI.
     /// </summary>
-    public interface IThemeResolver
-    {
-        /// <summary>
-        /// Applies the given color theme to the UI.
-        /// </summary>
-        void SetColorScheme(Theme colorTheme);
-    }
+    void SetColorScheme(Theme colorTheme);
 }

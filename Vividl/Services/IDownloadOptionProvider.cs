@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Vividl.Model;
+﻿using System.Collections.Generic;
+using Vividl.Models;
 
-namespace Vividl.Services
+namespace Vividl.Services;
+
+public interface IDownloadOptionProvider
 {
-    public interface IDownloadOptionProvider
-    {
-        List<IDownloadOption> CreateDownloadOptions(bool withCustomDownload = false);
-    }
+    List<IDownloadOption> CreateDownloadOptions(bool withCustomDownload = false);
 }

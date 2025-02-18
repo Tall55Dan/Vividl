@@ -1,83 +1,81 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Enterwell.Clients.Wpf.Notifications;
 
-namespace Vividl.Services
+namespace Vividl.Services;
+
+/// <summary>
+/// NotificationMessageManager with max number of notifications.
+/// Copied and adapted from NotificationMessageManager class.
+/// </summary>
+/// <seealso cref="INotificationMessageManager" />
+public class CappedNotificationMessageManager : INotificationMessageManager
 {
-    /// <summary>
-    /// NotificationMessageManager with max number of notifications.
-    /// Copied and adapted from NotificationMessageManager class.
-    /// </summary>
-    /// <seealso cref="INotificationMessageManager" />
-    public class CappedNotificationMessageManager : INotificationMessageManager
+    private readonly List<INotificationMessage> queuedMessages = new List<INotificationMessage>();
+
+    public event NotificationMessageManagerEventHandler OnMessageQueued;
+
+    public event NotificationMessageManagerEventHandler OnMessageDismissed;
+
+    public INotificationMessageFactory Factory { get; set; } = new NotificationMessageFactory();
+
+    public int MaxNotifications { get; }
+
+    public CappedNotificationMessageManager(int maxNotifications)
     {
-        private readonly List<INotificationMessage> queuedMessages = new List<INotificationMessage>();
+        MaxNotifications = maxNotifications;
+    }
 
-        public event NotificationMessageManagerEventHandler OnMessageQueued;
+    /// <summary>
+    /// Queues the specified message.
+    /// This will ignore the <c>null</c> message or already queued notification message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    public void Queue(INotificationMessage message)
+    {
+        if (message == null || this.queuedMessages.Contains(message))
+            return;
 
-        public event NotificationMessageManagerEventHandler OnMessageDismissed;
+        this.queuedMessages.Add(message);
 
-        public INotificationMessageFactory Factory { get; set; } = new NotificationMessageFactory();
+        this.TriggerMessageQueued(message);
 
-        public int MaxNotifications { get; }
-
-        public CappedNotificationMessageManager(int maxNotifications)
+        if (this.queuedMessages.Count > MaxNotifications)
         {
-            MaxNotifications = maxNotifications;
+            this.Dismiss(this.queuedMessages.First());
         }
+    }
 
-        /// <summary>
-        /// Queues the specified message.
-        /// This will ignore the <c>null</c> message or already queued notification message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public void Queue(INotificationMessage message)
-        {
-            if (message == null || this.queuedMessages.Contains(message))
-                return;
+    /// <summary>
+    /// Triggers the message queued event.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    private void TriggerMessageQueued(INotificationMessage message)
+    {
+        this.OnMessageQueued?.Invoke(this, new NotificationMessageManagerEventArgs(message));
+    }
 
-            this.queuedMessages.Add(message);
+    /// <summary>
+    /// Dismisses the specified message.
+    /// This will ignore the <c>null</c> or not queued notification message.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    public void Dismiss(INotificationMessage message)
+    {
+        if (message == null || !this.queuedMessages.Contains(message))
+            return;
 
-            this.TriggerMessageQueued(message);
+        this.queuedMessages.Remove(message);
 
-            if (this.queuedMessages.Count > MaxNotifications)
-            {
-                this.Dismiss(this.queuedMessages.First());
-            }
-        }
+        this.TriggerMessageDismissed(message);
+    }
 
-        /// <summary>
-        /// Triggers the message queued event.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        private void TriggerMessageQueued(INotificationMessage message)
-        {
-            this.OnMessageQueued?.Invoke(this, new NotificationMessageManagerEventArgs(message));
-        }
-
-        /// <summary>
-        /// Dismisses the specified message.
-        /// This will ignore the <c>null</c> or not queued notification message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public void Dismiss(INotificationMessage message)
-        {
-            if (message == null || !this.queuedMessages.Contains(message))
-                return;
-
-            this.queuedMessages.Remove(message);
-
-            this.TriggerMessageDismissed(message);
-        }
-
-        /// <summary>
-        /// Triggers the message dismissed event.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        private void TriggerMessageDismissed(INotificationMessage message)
-        {
-            this.OnMessageDismissed?.Invoke(this, new NotificationMessageManagerEventArgs(message));
-        }
+    /// <summary>
+    /// Triggers the message dismissed event.
+    /// </summary>
+    /// <param name="message">The message.</param>
+    private void TriggerMessageDismissed(INotificationMessage message)
+    {
+        this.OnMessageDismissed?.Invoke(this, new NotificationMessageManagerEventArgs(message));
     }
 }
