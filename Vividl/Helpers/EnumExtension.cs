@@ -1,40 +1,29 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Windows.Markup;
+using Avalonia.Markup.Xaml;
 
-namespace Vividl.Helpers
+namespace Vividl.Helpers;
+
+public abstract class EnumExtension(Type enumType) : MarkupExtension
 {
-    public class EnumExtension : MarkupExtension
-    {
-        private readonly Type enumType;
+  public int SkipCount { get; set; }
 
-        public int SkipCount { get; set; }
+  public override object ProvideValue(IServiceProvider serviceProvider)
+  {
+    return Enum.GetValues(enumType).Cast<object>()
+      .Skip(SkipCount)
+      .Select(o => new { Value = o, Description = GetEnumDescription((Enum)o) });
+  }
 
-        public EnumExtension(Type enumType)
-        {
-            this.enumType = enumType;
-        }
+  private string GetEnumDescription(Enum value)
+  {
+    var attributes = value.GetType()
+      .GetField(value.ToString())
+      ?.GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
 
-        public override object ProvideValue(IServiceProvider serviceProvider)
-        {
-            return Enum.GetValues(enumType).Cast<object>()
-                .Skip(SkipCount)
-                .Select(o => new { Value = o, Description = GetEnumDescription((Enum)o) });
-        }
-
-        public string GetEnumDescription(Enum value)
-        {
-            var attributes = value.GetType()
-                .GetField(value.ToString())
-                .GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
-
-            if (attributes.Any())
-            {
-                return attributes.First().Description;
-            }
-            return value.ToString();
-        }
-    }
+    Debug.Assert(attributes != null, nameof(attributes) + " != null");
+    return attributes.Length != 0 ? attributes.First().Description : value.ToString();
+  }
 }

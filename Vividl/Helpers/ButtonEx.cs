@@ -1,41 +1,42 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using Avalonia.Interactivity;
 
-namespace Vividl.Helpers
+namespace Vividl.Helpers;
+
+public class ButtonEx
 {
-    public static class ButtonEx
+  private static readonly DependencyProperty CloseWindowProperty =
+    DependencyProperty.RegisterAttached(
+      "CloseWindow", typeof(bool), typeof(ButtonEx),
+      new PropertyMetadata(false, onPropertyChanged)
+    );
+
+  public static void SetCloseWindow(UIElement element, bool value)
+    => element.SetValue(CloseWindowProperty, value);
+
+  public static bool GetCloseWindow(UIElement element)
+    => (bool)element.GetValue(CloseWindowProperty);
+
+  protected virtual void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+  {
+    if (d is not Button btn) return;
+    bool oldVal = (bool)e.OldValue, newVal = (bool)e.NewValue;
+    switch (oldVal)
     {
-        public static readonly DependencyProperty CloseWindowProperty =
-            DependencyProperty.RegisterAttached(
-                "CloseWindow", typeof(bool), typeof(ButtonEx),
-                new PropertyMetadata(false, onPropertyChanged)
-                );
-
-        public static void SetCloseWindow(UIElement element, bool value)
-            => element.SetValue(CloseWindowProperty, value);
-
-        public static bool GetCloseWindow(UIElement element)
-            => (bool)element.GetValue(CloseWindowProperty);
-
-        private static void onPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is Button but)
-            {
-                bool oldVal = (bool)e.OldValue, newVal = (bool)e.NewValue;
-                if (!oldVal && newVal)
-                    but.Click += buttonClick;
-                else if (oldVal && !newVal)
-                    but.Click -= buttonClick;
-            }
-        }
-
-        private static void buttonClick(object sender, RoutedEventArgs e)
-        {
-            Button button = (Button)sender;
-            Window window = Window.GetWindow(button);
-            window.DialogResult = button.IsDefault;
-            window.Close();
-        }
+      case false when newVal:
+        btn.Click += ButtonClick;
+        break;
+      case true when !newVal:
+        btn.Click -= ButtonClick;
+        break;
     }
+  }
+
+  private static void ButtonClick(object? sender, RoutedEventArgs e)
+  {
+    var button = (Button)sender!;
+    Window window = Window.GetWindow(button);
+    window.DialogResult = button!.IsDefault;
+    window.Close();
+  }
 }

@@ -1,8 +1,6 @@
 ﻿using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
-using System.Windows;
-using Bluegrams.Application.Attributes;
 
 [assembly: AssemblyTitle("Vividl - Video Downloader")]
 [assembly: AssemblyDescription("Free Video Downloader for Windows")]
@@ -13,10 +11,11 @@ using Bluegrams.Application.Attributes;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
+/*
 [assembly: ProductWebsite("https://vividl.sourceforge.io")]
 [assembly: ProductLicense("LICENSE.txt", "BSD-3-clause License")]
 [assembly: CompanyWebsite("http://bluegrams.com", "http://bluegrams.com")]
-
+*/
 #if PORTABLE
 [assembly: AppPortable(true)]
 #endif
@@ -35,7 +34,7 @@ using Bluegrams.Application.Attributes;
 
 [assembly: NeutralResourcesLanguage("en")]
 
-
+/*
 [assembly: ThemeInfo(
     ResourceDictionaryLocation.None, //where theme specific resource dictionaries are located
                                      //(used if a resource is not found in the page,
@@ -47,3 +46,4 @@ using Bluegrams.Application.Attributes;
 
 [assembly: AssemblyVersion("0.8.0.0")]
 [assembly: AssemblyFileVersion("0.8.0.0")]
+*/
